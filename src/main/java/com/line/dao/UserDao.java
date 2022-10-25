@@ -1,6 +1,8 @@
 package com.line.dao;
 
 import com.line.domain.User;
+import com.mysql.cj.x.protobuf.MysqlxPrepare;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.sql.*;
 import java.util.Map;
@@ -11,7 +13,70 @@ public class UserDao {
 
     public UserDao(ConnectionMaker cm) {
         this.cm = cm;
+    }
 
+    public void deleteAll() throws SQLException {
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = cm.makeConnection();
+            ps = conn.prepareStatement("delete from users");
+            ps.executeUpdate();
+        } catch(SQLException e) {
+            throw e;
+        } finally {
+            if(ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+
+            }
+            if(conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+
+                }
+            }
+        }
+    }
+
+    public int getCount() throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int cnt = 0;
+        try {
+            conn = cm.makeConnection();
+            ps = conn.prepareStatement("select count(*) from users");
+            rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if(rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if(ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if(conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
+
+        }
     }
 
     public void add(User user) {
@@ -44,11 +109,17 @@ public class UserDao {
 
             ResultSet rs = ps.executeQuery();
             rs.next();
-            User user = new User(rs.getString("id"),
-                    rs.getString("name"), rs.getString("password"));
+            User user = null;
+            if (rs.next()) {
+                user = new User(rs.getString("id"),
+                        rs.getString("name"), rs.getString("password"));
+            }
+
             rs.close();
             ps.close();
             conn.close();
+
+            if(user==null) throw new EmptyResultDataAccessException(1);
 
             return user;
 
