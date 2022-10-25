@@ -23,11 +23,19 @@ public class UserDaoTest {
 //        user = ud.findById(id);
 //        Assertions.assertEquals("Raraa", user.getName());
 
-        //interface적용 후
-        UserDao ud = new UserDao(new ConnectionA());
-        String id = "3";
-        ud.add(new User(id, "Raro", "114788"));
+//        //interface적용 후
+//        UserDao ud = new UserDao(new ConnectionA());
+//        String id = "3";
+//        ud.add(new User(id, "Raro", "114788"));
+//        User user = ud.findById(id);
+//        Assertions.assertEquals("Raro", user.getName());
+
+        //factory적용 후
+//        UserDaoFactory udFactory = new UserDaoFactory();
+        UserDao ud = new UserDaoFactory().userDao();
+        String id = "4";
+        ud.add(new User(id, "daro", "11554788"));
         User user = ud.findById(id);
-        Assertions.assertEquals("Raro", user.getName());
+        Assertions.assertEquals("daro", user.getName());
     }
 }
