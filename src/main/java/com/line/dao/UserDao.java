@@ -14,33 +14,60 @@ public class UserDao {
     public UserDao(ConnectionMaker cm) {
         this.cm = cm;
     }
-
-    public void deleteAll() throws SQLException {
-
+    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException, ClassNotFoundException {
         Connection conn = null;
         PreparedStatement ps = null;
-        try {
+
+        try{
             conn = cm.makeConnection();
-            ps = conn.prepareStatement("delete from users");
+            ps = stmt.makePreparedStatement(conn);
             ps.executeUpdate();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             throw e;
         } finally {
             if(ps != null) {
                 try {
                     ps.close();
-                } catch (SQLException e) {
+                } catch(SQLException e) {
                 }
-
             }
-            if(conn != null) {
+            if( conn != null) {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-
                 }
             }
         }
+    }
+
+    public void deleteAll() throws SQLException, ClassNotFoundException {
+
+        jdbcContextWithStatementStrategy(new DeleteAllStrategy());
+//        Connection conn = null;
+//        PreparedStatement ps = null;
+//        try {
+//            conn = cm.makeConnection();
+////            ps = conn.prepareStatement("delete from users");
+//            ps = new DeleteAllStrategy().makePreparedStatement(conn);
+//            ps.executeUpdate();
+//        } catch(SQLException e) {
+//            throw e;
+//        } finally {
+//            if(ps != null) {
+//                try {
+//                    ps.close();
+//                } catch (SQLException e) {
+//                }
+//
+//            }
+//            if(conn != null) {
+//                try {
+//                    conn.close();
+//                } catch (SQLException e) {
+//
+//                }
+//            }
+//        }
     }
 
     public int getCount() throws SQLException {
@@ -79,22 +106,24 @@ public class UserDao {
         }
     }
 
-    public void add(User user) {
-        Map<String, String> env = System.getenv();
-        try {
-            Connection conn = cm.makeConnection();
-            PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO USERS(id, name, password) VALUES(?,?,?);");
-            ps.setString(1, user.getId());
-            ps.setString(2, user.getName());
-            ps.setString(3, user.getPassword());
-
-            ps.executeUpdate();
-            ps.close();
-            conn.close();
-        } catch(SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public void add(User user) throws SQLException, ClassNotFoundException {
+        AddStrategy as = new AddStrategy(user);
+        jdbcContextWithStatementStrategy(as);
+//        Map<String, String> env = System.getenv();
+//        try {
+//            Connection conn = cm.makeConnection();
+//            PreparedStatement ps = conn.prepareStatement(
+//                    "INSERT INTO USERS(id, name, password) VALUES(?,?,?);");
+//            ps.setString(1, user.getId());
+//            ps.setString(2, user.getName());
+//            ps.setString(3, user.getPassword());
+//
+//            ps.executeUpdate();
+//            ps.close();
+//            conn.close();
+//        } catch(SQLException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     public User findById(String id) {
