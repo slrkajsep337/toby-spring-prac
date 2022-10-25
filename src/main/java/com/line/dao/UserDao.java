@@ -7,10 +7,10 @@ import java.util.Map;
 
 public class UserDao {
 
-    private ConnectionA cm;
+    private ConnectionMaker cm;
 
-    public UserDao() {
-        cm = new ConnectionA();
+    public UserDao(ConnectionMaker cm) {
+        this.cm = cm;
 
     }
 
@@ -58,8 +58,7 @@ public class UserDao {
     }
 
     public static void main(String[] args) {
-        UserDao ud = new UserDao();
-        User user = ud.findById("1");
-        System.out.println(user.getName());
+
     }
+
 }
