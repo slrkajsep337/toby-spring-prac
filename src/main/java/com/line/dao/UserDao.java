@@ -7,10 +7,10 @@ import java.util.Map;
 
 public class UserDao {
 
-    private ConnectionMaker cm;
+    private ConnectionA cm;
 
     public UserDao() {
-        cm = new ConnectionMaker();
+        cm = new ConnectionA();
 
     }
 
